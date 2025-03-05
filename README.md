@@ -1,32 +1,38 @@
-Skill Gap Analysis Web Application
-Project Overview:
-The Skill Gap Analysis Web Application is an AI-powered tool designed to help job seekers analyze their resumes, identify missing skills, and compare them with job role requirements. This application extracts key details such as name, contact information, education, work experience, and skills from resumes uploaded in PDF or Word format.
+# 🚀 Skill Gap Analysis Web Application  
+> **Analyze your resume, compare skills with job roles, and get a roadmap for improvement.**  
 
-Key Features:
-✅ Upload resumes in PDF or Word format for analysis.
-✅ Extract and display key resume details including name, contact, education, work experience, and skills.
-✅ Compare extracted skills with the required skills for a selected job role.
-✅ Identify skill gaps and generate an interactive roadmap for skill enhancement.
-✅ Provide improvement suggestions and recommendations for missing skills.
-✅ Modern UI with smooth scrolling, animations, and an intuitive user experience.
+![Skill Gap Analysis](https://via.placeholder.com/800x300?text=Skill+Gap+Analysis+Web+App)  
 
-Technologies Used:
-Backend: Python, Flask, Machine Learning, NLP
-Frontend: HTML, CSS, JavaScript
-Libraries & Tools: Numpy, Pandas, Scikit-learn, OpenCV
-How It Works:
-The user uploads their resume (PDF/Word format).
-The system extracts important details such as education, work experience, and skills.
-The extracted skills are compared with job role requirements.
-Missing skills are highlighted, and an improvement plan is suggested.
-A skill roadmap is generated to guide users on improving their skill set.
-Use Cases:
-✅ Helps job seekers enhance their resumes by identifying skill gaps.
-✅ Provides insights into required skills for a particular job role.
-✅ Assists recruiters in analyzing and comparing candidates efficiently.
+## 📌 Overview  
+The **Skill Gap Analysis Web Application** helps users analyze their resumes, extract key details, compare their skills with job role requirements, and generate an improvement roadmap.  
 
+## ✨ Features  
+✅ Upload resumes (PDF/Word) for analysis  
+✅ Extract key resume details (Name, Contact, Education, Experience, Skills)  
+✅ Compare extracted skills with job role requirements  
+✅ Identify missing skills and suggest an improvement plan  
+✅ Provide an interactive roadmap for skill enhancement  
+✅ Modern UI with smooth scrolling and animations  
 
+## 🛠️ Tech Stack  
+- **Frontend:** HTML, CSS, JavaScript  
+- **Backend:** Python, Flask  
+- **Libraries:** NLP, Numpy, Pandas, OpenCV, Scikit-learn  
 
+## 🚀 How It Works  
+1️⃣ Upload your resume (PDF/Word)  
+2️⃣ System extracts and analyzes key details  
+3️⃣ Extracted skills are compared with required job skills  
+4️⃣ Missing skills are highlighted and suggestions are provided  
+5️⃣ A roadmap for skill enhancement is generated  
 
+## 📷 Screenshots  
+![Upload Resume](https://via.placeholder.com/800x400?text=Upload+Resume+Section)  
+![Skill Analysis](https://via.placeholder.com/800x400?text=Skill+Analysis+Results)  
 
-
+## 📌 Installation  
+```bash
+git clone https://github.com/yourusername/Skill-Gap-Analysis.git
+cd Skill-Gap-Analysis
+pip install -r requirements.txt
+python app.py
