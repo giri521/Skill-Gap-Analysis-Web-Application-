@@ -50,7 +50,14 @@ def extract_details(text):
     phone = re.findall(r"\+?\d{10,13}", text)
     education_keywords = ["B.Tech", "M.Tech", "B.Sc", "M.Sc", "BCA", "MCA", "MBA", "PhD"]
     education = [word for word in text.split() if word in education_keywords]
-    skills = [skill for skill in ["Python", "Java", "C++", "JavaScript", "SQL"] if skill.lower() in text.lower()]
+    skills = [skill for skill in [
+  "Python", "Java", "C++", "JavaScript", "HTML", "CSS", "React", "Node.js", "SQL",
+  "Machine Learning", "Deep Learning", "TensorFlow", "Pandas", "Data Science",
+  "Cyber Security", "Networking", "AWS", "Docker", "Kubernetes", "Statistics",
+  "Data Visualization", "Scikit-learn", "Neural Networks", "Optimization",
+  "Big Data", "NLP", "Reinforcement Learning", "Edge AI", "AutoML"
+]
+if skill.lower() in text.lower()]
     return name, email[0] if email else None, phone[0] if phone else None, ", ".join(education) if education else None, skills
 
 def calculate_resume_score(name, email, phone, education, skills):
