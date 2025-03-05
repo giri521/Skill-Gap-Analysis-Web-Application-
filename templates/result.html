@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Analysis Results</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+    body {
+    background-color: #121212;
+    color: white;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+}
+
+.container {
+    margin-top: 20px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#skillPieChart {
+    max-width: 300px;
+    max-height: 300px;
+    margin: auto;
+    display: block;
+}
+
+/* Resume Preview Box */
+.preview-box {
+    background: #1e1e1e;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.1);
+    margin: 20px auto;
+    width: 70%;
+    transition: transform 0.3s ease-in-out;
+}
+
+.preview-box:hover {
+    transform: scale(1.02);
+}
+
+iframe {
+    width: 100%;
+    height: 500px;
+    border: none;
+    border-radius: 8px;
+}
+
+/* Data Display Box */
+.box {
+    background: #1e1e1e;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: left;
+    box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
+}
+
+/* Name Container */
+.green-box {
+    background: linear-gradient(45deg, #00c853, #b2ff59);
+    color: black;
+    padding: 12px;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0px 0px 10px rgba(0, 200, 83, 0.5);
+}
+
+/* Dropdown & Selection */
+.job-dropdown, .skill-selection {
+    margin-top: 10px;
+    padding: 10px;
+    background: #333;
+    color: white;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.job-dropdown:hover, .skill-selection:hover {
+    background: #444;
+}
+
+/* Buttons */
+button {
+    background: linear-gradient(45deg, #00aaff, #0077cc);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0px 5px 10px rgba(0, 170, 255, 0.3);
+}
+
+button:hover {
+    background: linear-gradient(45deg, #0077cc, #005f99);
+    transform: translateY(-3px);
+}
+
+/* Icons for UI Enhancement */
+.icon {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #222;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #00aaff;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #0077cc;
+}
+  body { 
+    font-family: Arial, sans-serif; 
+    background: #121212; 
+    color: #fff; 
+    text-align: center; 
+    padding: 20px;
+}
+.container { 
+    width: 60%; 
+    margin: 20px auto; 
+    background: #1e1e1e; 
+    padding: 20px; 
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+.score-box { 
+    width: 60%;
+    background: #1e1e1e; 
+    padding: 20px; 
+    border-radius: 10px; 
+    margin: 20px auto;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.2);
+}
+.score-number {
+    font-size: 36px;
+    font-weight: bold;
+    color: #4CAF50; 
+}
+.progress-bar {
+    width: 100%;
+    background: #333;
+    border-radius: 5px;
+    margin-top: 10px;
+    height: 15px;
+    overflow: hidden;
+    position: relative;
+}
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    transition: width 2s ease-in-out;
+}
+</style>
+</head>
+<body>
+
+    <div class="container">
+<h1>SKILL GAP ANALYSIS</h1>
+        
+    <!-- Name Display -->
+    <div class="box green-box">
+        <i class="fas fa-user"></i> Hello, {{ name }}
+    </div>
+
+    <h3><i class="fas fa-file-alt"></i> Resume Preview:</h3>
+    {% if resume_filename.endswith('.pdf') %}
+        <iframe src="{{ url_for('uploaded_file', filename=resume_filename) }}" width="100%" height="500px"></iframe>
+    {% else %}
+        <p>Preview is available only for PDFs.</p>
+    {% endif %}
+<div class="score-box">
+            <h3>Resume Score</h3>
+            <div class="score-number" id="animated-score">0</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-bar"></div>
+            </div>
+        </div>    <!-- Extracted Resume Details -->
+    <div class="box">
+        <h3><i class="fas fa-info-circle"></i> Extracted Resume Details</h3>
+        <p><strong>Email:</strong> {{ email }}</p>
+        <p><strong>Phone:</strong> {{ phone }}</p>
+        <p><strong>Education:</strong> {{ education }}</p>
+    </div>
+
+    <!-- Extracted Skills -->
+    <div class="box">
+        <h3><i class="fas fa-lightbulb"></i> Your Extracted Skills</h3>
+        <ul>
+            {% for skill in skills %}
+                <li><i class="fas fa-check-circle"></i> {{ skill }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Job Role Selection -->
+    <div class="box">
+        <h3><i class="fas fa-briefcase"></i> Select Your Job Role</h3>
+        <select id="job-role" class="job-dropdown">
+            <option value="">-- Select Job Role --</option>
+            <option value="Data Scientist">Data Scientist</option>
+            <option value="Web Developer">Web Developer</option>
+            <option value="Machine Learning Engineer">Machine Learning Engineer</option>
+            <option value="Cyber Security Expert">Cyber Security Expert</option>
+            <option value="AI Engineer">AI Engineer</option>
+            <option value="DevOps Engineer">DevOps Engineer</option>
+            <option value="Blockchain Developer">Blockchain Developer</option>
+            <option value="Cloud Engineer">Cloud Engineer</option>
+        </select>
+    </div>
+
+    <!-- Required Skills for Job Role -->
+    <div class="box" id="required-skills" style="display:none;">
+        <h3><i class="fas fa-tools"></i> Required Skills for <span id="selected-job"></span></h3>
+        <h4>Basic Skills:</h4>
+        <ul id="basic-skills"></ul>
+        <h4>Advanced Skills:</h4>
+        <ul id="advanced-skills"></ul>
+        <h4>Pro Level Skills:</h4>
+        <ul id="pro-skills"></ul>
+    </div>
+
+    <!-- Skill Comparison -->
+    <div class="box" id="skill-comparison" style="display:none;">
+        <h3><i class="fas fa-tasks"></i> Skill Comparison</h3>
+        <h4>Skills You Already Have:</h4>
+        <ul id="matched-skills"></ul>
+        <h4>Skills You Need to Improve:</h4>
+        <ul id="missing-skills"></ul>
+
+        <!-- Pie Chart -->
+        <canvas id="skillPieChart"></canvas>
+    </div>
+
+    <!-- Skill Improvement Selection -->
+    <div class="box" id="skill-selection-box" style="display:none;">
+        <h3><i class="fas fa-chart-line"></i> Select Skills You Want to Improve</h3>
+        <select id="improve-skills" multiple class="skill-selection"></select>
+        <br><br>
+        <button onclick="generateRoadmap()" class="btn"><i class="fas fa-road"></i> Generate Learning Roadmap</button>
+    </div>
+
+    <!-- Roadmap -->
+    <div class="box" id="roadmap-box" style="display:none;">
+        <h3><i class="fas fa-map-signs"></i> Learning Roadmap</h3>
+        <ol id="roadmap-steps"></ol>
+    </div>
+</div>
+       
+    <script>
+        // Job Role Skills Data
+        const jobSkills = {
+            "Data Scientist": {
+                "basic": ["Python", "SQL", "Statistics"],
+                "advanced": ["Machine Learning", "Data Visualization", "Pandas"],
+                "pro": ["Deep Learning", "Big Data", "NLP"]
+            },
+            "Web Developer": {
+                "basic": ["HTML", "CSS", "JavaScript"],
+                "advanced": ["React", "Node.js", "REST APIs"],
+                "pro": ["Docker", "AWS", "Microservices"]
+            },
+            "Machine Learning Engineer": {
+                "basic": ["Python", "TensorFlow", "Scikit-learn"],
+                "advanced": ["Deep Learning", "Neural Networks", "Optimization"],
+                "pro": ["Reinforcement Learning", "Edge AI", "AutoML"]
+            },
+            "Cyber Security Expert": {
+                "basic": ["Networking", "Python", "Ethical Hacking"],
+                "advanced": ["Penetration Testing", "Cryptography", "SIEM"],
+                "pro": ["Forensics", "Reverse Engineering", "Cyber Threat Intelligence"]
+            },
+            "AI Engineer": {
+                "basic": ["Python", "Deep Learning", "Computer Vision"],
+                "advanced": ["Transformers", "GANs", "MLOps"],
+                "pro": ["AGI", "AI Research", "Quantum AI"]
+            },
+            "DevOps Engineer": {
+                "basic": ["Linux", "Docker", "Bash Scripting"],
+                "advanced": ["Kubernetes", "CI/CD Pipelines", "Terraform"],
+                "pro": ["Cloud Security", "Serverless Architectures", "DevSecOps"]
+            },
+            "Blockchain Developer": {
+                "basic": ["Solidity", "Smart Contracts", "Ethereum"],
+                "advanced": ["Hyperledger", "NFT Development", "DeFi Protocols"],
+                "pro": ["Zero-Knowledge Proofs", "Consensus Algorithms", "Blockchain Security"]
+            },
+            "Cloud Engineer": {
+                "basic": ["AWS", "Azure", "Google Cloud"],
+                "advanced": ["Cloud Networking", "Serverless Computing", "Cost Optimization"],
+                "pro": ["Multi-Cloud Management", "Cloud Security", "Edge Computing"]
+            }        };
+
+        // Handle Job Role Selection
+        $("#job-role").change(function() {
+            let selectedRole = $(this).val();
+            if (selectedRole) {
+                $("#required-skills").show();
+                $("#selected-job").text(selectedRole);
+                $("#basic-skills").html(jobSkills[selectedRole].basic.map(skill => `<li>${skill}</li>`).join(""));
+                $("#advanced-skills").html(jobSkills[selectedRole].advanced.map(skill => `<li>${skill}</li>`).join(""));
+                $("#pro-skills").html(jobSkills[selectedRole].pro.map(skill => `<li>${skill}</li>`).join(""));
+
+                let extractedSkills = {{ skills | tojson }};
+                let matchedSkills = extractedSkills.filter(skill => jobSkills[selectedRole].basic.concat(jobSkills[selectedRole].advanced, jobSkills[selectedRole].pro).includes(skill));
+                let missingSkills = jobSkills[selectedRole].basic.concat(jobSkills[selectedRole].advanced, jobSkills[selectedRole].pro).filter(skill => !extractedSkills.includes(skill));
+
+                $("#skill-comparison").show();
+                $("#matched-skills").html(matchedSkills.map(skill => `<li>${skill}</li>`).join(""));
+                $("#missing-skills").html(missingSkills.map(skill => `<li>${skill}</li>`).join(""));
+
+                $("#skill-selection-box").show();
+                $("#improve-skills").html(missingSkills.map(skill => `<option value="${skill}">${skill}</option>`).join(""));
+            } else {
+                $("#required-skills, #skill-comparison, #skill-selection-box, #roadmap-box").hide();
+            }
+        });
+
+        // Learning Roadmap Data
+const skillRoadmap = {
+    "Python": [
+        "Learn Python basics: syntax, variables, data types (Codecademy, W3Schools).",
+        "Understand loops, functions, and OOP concepts (Real Python, GeeksforGeeks).",
+        "Practice with small projects like calculators and to-do lists (Python Crash Course Book).",
+        "Explore libraries like NumPy, Pandas, and Matplotlib (Kaggle, DataCamp).",
+        "Work on real-world projects: web scraping, automation, and APIs (GitHub, Coursera)."
+    ],
+    "Java": [
+        "Start with Java syntax, OOP concepts, and data structures (Oracle Java Docs).",
+        "Practice with small projects like a banking system or a calculator.",
+        "Learn Java frameworks like Spring Boot and Hibernate (Udemy, YouTube).",
+        "Build enterprise-level applications (Spring Boot Official Docs)."
+    ],
+    "C++": [
+        "Learn C++ syntax, data types, and memory management (Cplusplus.com).",
+        "Understand OOP, pointers, and STL (Standard Template Library).",
+        "Practice with projects: simple games, sorting algorithms (LeetCode, Codeforces).",
+        "Explore advanced concepts like multithreading and competitive programming."
+    ],
+    "JavaScript": [
+        "Understand JS fundamentals: variables, functions, loops (MDN Web Docs).",
+        "Learn DOM manipulation and event handling (JavaScript.info).",
+        "Explore ES6+ features: arrow functions, promises, async/await (YouTube tutorials).",
+        "Work with frameworks like React, Vue.js (React Official Docs).",
+        "Build real-world projects: portfolio websites, web apps (Frontend Mentor, GitHub)."
+    ],
+    "HTML": [
+        "Learn basic HTML elements, forms, and structure (MDN Docs, W3Schools).",
+        "Understand semantic HTML and accessibility (Google Lighthouse).",
+        "Work on projects: personal websites, landing pages (Frontend Mentor)."
+    ],
+    "CSS": [
+        "Master CSS selectors, flexbox, grid (CSS-Tricks, MDN).",
+        "Learn animations and responsive design (Tailwind CSS, Bootstrap).",
+        "Create projects like interactive UI components and dark mode toggles."
+    ],
+    "React": [
+        "Learn React fundamentals: components, props, state (React Docs).",
+        "Understand hooks, context API, and Redux (Scrimba, Udemy).",
+        "Build projects like a weather app, chat app, or e-commerce site."
+    ],
+    "Node.js": [
+        "Understand Node.js basics, NPM, and Express.js (Node.js Docs).",
+        "Learn backend development, authentication, and APIs (MongoDB, REST, GraphQL).",
+        "Build projects: authentication system, CRUD app (MERN Stack)."
+    ],
+    "SQL": [
+        "Learn SQL basics: queries, joins, indexing (MySQL, PostgreSQL Docs).",
+        "Practice with database design, stored procedures, and triggers.",
+        "Work with large-scale databases and optimize queries."
+    ],
+    "Machine Learning": [
+        "Learn Python and statistics basics (Khan Academy, Coursera).",
+        "Understand ML algorithms: regression, classification, clustering (Andrew Ng’s ML Course).",
+        "Work with libraries: Scikit-learn, TensorFlow, Keras (Kaggle, Medium Tutorials).",
+        "Train models with real datasets (Kaggle competitions, Google Colab).",
+        "Deploy ML models using Flask/Django (FastAPI, Hugging Face)."
+    ],
+    "Deep Learning": [
+        "Understand neural networks and activation functions (Stanford CS231n).",
+        "Learn frameworks like TensorFlow, PyTorch (Coursera, YouTube).",
+        "Work on image recognition, NLP, and GANs."
+    ],
+    "TensorFlow": [
+        "Learn TensorFlow basics, tensors, and computation graphs (TensorFlow Docs).",
+        "Work on CNNs, RNNs, and reinforcement learning models.",
+        "Train deep learning models for real-world applications."
+    ],
+    "Pandas": [
+        "Learn Pandas for data analysis and preprocessing (DataCamp, Kaggle).",
+        "Understand data manipulation, cleaning, and visualization.",
+        "Work on real-world datasets and projects."
+    ],
+    "Data Science": [
+        "Understand data wrangling, visualization, and analysis.",
+        "Learn statistics, machine learning, and model evaluation.",
+        "Work on end-to-end data science projects (Kaggle, GitHub)."
+    ],
+    "Cyber Security": [
+        "Understand networking and protocols (Cisco Networking Academy).",
+        "Learn Linux commands and scripting (TryHackMe, HackTheBox).",
+        "Study ethical hacking techniques: penetration testing, OWASP (CEH Course, Udemy).",
+        "Explore cryptography and security tools (Metasploit, Wireshark).",
+        "Participate in CTFs and bug bounty programs (CTFtime, HackerOne)."
+    ],
+    "Networking": [
+        "Learn networking fundamentals: TCP/IP, DNS, DHCP (Cisco CCNA).",
+        "Understand routing, switching, and network security.",
+        "Practice with Packet Tracer, Wireshark, and Linux networking."
+    ],
+    "AWS": [
+        "Understand cloud computing fundamentals (AWS Training & Certification).",
+        "Learn AWS core services: EC2, S3, Lambda, RDS (AWS Free Tier Hands-on Labs).",
+        "Get familiar with IAM, networking, and security (AWS Well-Architected Framework).",
+        "Work on real projects: deploy websites, automate with AWS Lambda (AWS Projects GitHub).",
+        "Prepare for AWS certifications (AWS Certified Solutions Architect Associate)."
+    ],
+    "Docker": [
+        "Learn Docker basics: containers, images, Dockerfiles (Docker Docs).",
+        "Understand container orchestration with Kubernetes.",
+        "Deploy microservices using Docker Compose."
+    ],
+    "Kubernetes": [
+        "Understand Kubernetes architecture, clusters, and pods.",
+        "Work with deployments, scaling, and monitoring.",
+        "Use Helm charts, service mesh, and CI/CD pipelines."
+    ],
+    "Statistics": [
+        "Learn probability, distributions, hypothesis testing (Khan Academy, MIT OpenCourseWare).",
+        "Understand descriptive and inferential statistics.",
+        "Work on statistical analysis for real-world data science applications."
+    ],
+    "Data Visualization": [
+        "Learn Matplotlib, Seaborn, and Tableau for data visualization.",
+        "Work with dashboards and storytelling with data.",
+        "Use D3.js for web-based interactive data visualizations."
+    ],
+    "Scikit-learn": [
+        "Understand ML algorithms and preprocessing techniques.",
+        "Implement regression, classification, and clustering models.",
+        "Optimize models with feature engineering and hyperparameter tuning."
+    ],
+    "Neural Networks": [
+        "Learn perceptron, MLP, CNNs, RNNs, and LSTMs.",
+        "Implement deep learning models with TensorFlow or PyTorch.",
+        "Apply to real-world use cases like NLP and computer vision."
+    ],
+    "Optimization": [
+        "Understand optimization algorithms like gradient descent, Adam, SGD.",
+        "Work on hyperparameter tuning and model efficiency.",
+        "Learn advanced optimization techniques like Bayesian optimization."
+    ],
+    "Big Data": [
+        "Learn Hadoop, Spark, and distributed computing.",
+        "Understand data lakes, ETL processes, and NoSQL databases.",
+        "Work with real-time streaming data with Apache Kafka."
+    ],
+    "NLP": [
+        "Understand text preprocessing, tokenization, and word embeddings.",
+        "Work with libraries like NLTK, SpaCy, and Transformers.",
+        "Build NLP applications like chatbots and sentiment analysis."
+    ],
+    "Reinforcement Learning": [
+        "Learn Markov Decision Processes, Q-learning, and policy gradients.",
+        "Implement RL agents using OpenAI Gym and TensorFlow.",
+        "Apply RL to robotics, gaming, and finance."
+    ],
+    "Edge AI": [
+        "Understand AI on edge devices: Raspberry Pi, Jetson Nano.",
+        "Deploy lightweight ML models for IoT applications.",
+        "Optimize models for low-power environments."
+    ],
+    "AutoML": [
+        "Use AutoML frameworks like Google AutoML, H2O.ai, TPOT.",
+        "Automate feature selection, model training, and hyperparameter tuning.",
+        "Deploy AutoML models in production."
+    ]
+};
+// Generate Learning Roadmap
+function generateRoadmap() {
+    let selectedSkills = $("#improve-skills").val();
+    if (selectedSkills.length > 0) {
+        $("#roadmap-box").show();
+        let roadmapContent = selectedSkills.map(skill => {
+            let steps = skillRoadmap[skill] || ["Start learning from online courses and practice with projects."];
+            return `<li><strong>${skill} Roadmap:</strong><br><ul>${steps.map(step => `<li>${step}</li>`).join("")}</ul></li>`;
+        }).join("");
+        $("#roadmap-steps").html(roadmapContent);
+    }
+}
+function updatePieChart(matchedSkills, missingSkills) {
+        const ctx = document.getElementById("skillPieChart").getContext("2d");
+        
+        // Destroy existing chart to avoid duplicate instances
+        if (window.skillChart) {
+            window.skillChart.destroy();
+        }
+
+        window.skillChart = new Chart(ctx, {
+            type: "pie",
+            data: {
+                labels: ["Skills You Have", "Skills to Improve"],
+                datasets: [{
+                    data: [matchedSkills.length, missingSkills.length],
+                    backgroundColor: ["#00c853", "#ff5252"], // Green for matched, Red for missing
+                    borderColor: ["#00c853", "#ff5252"],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: "white" // Adjust legend text color for dark mode
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Update Skill Comparison Section with Chart
+    $("#job-role").change(function() {
+        let selectedRole = $(this).val();
+        if (selectedRole) {
+            let extractedSkills = {{ skills | tojson }};
+            let matchedSkills = extractedSkills.filter(skill => 
+                jobSkills[selectedRole].basic.concat(jobSkills[selectedRole].advanced, jobSkills[selectedRole].pro).includes(skill)
+            );
+            let missingSkills = jobSkills[selectedRole].basic.concat(jobSkills[selectedRole].advanced, jobSkills[selectedRole].pro).filter(skill => 
+                !extractedSkills.includes(skill)
+            );
+
+            $("#skill-comparison").show();
+            $("#matched-skills").html(matchedSkills.map(skill => `<li>${skill}</li>`).join(""));
+            $("#missing-skills").html(missingSkills.map(skill => `<li>${skill}</li>`).join(""));
+
+            // Update Pie Chart
+            updatePieChart(matchedSkills, missingSkills);
+        } else {
+            $("#skill-comparison").hide();
+        }
+    });
+function animateScore(finalScore) {
+            let currentScore = 0;
+            let scoreElement = document.getElementById("animated-score");
+            let progressBar = document.getElementById("progress-bar");
+
+            let interval = setInterval(() => {
+                if (currentScore >= finalScore) {
+                    clearInterval(interval);
+                } else {
+                    currentScore += 1; 
+                    scoreElement.textContent = currentScore;
+                    progressBar.style.width = currentScore + "%";
+                }
+            }, 20);
+        }
+
+        // Run animation when page loads
+        document.addEventListener("DOMContentLoaded", function() {
+            let finalScore = {{ resume_score }}; // Score passed from Flask
+            animateScore(finalScore);
+        });
+    </script>
+
+</body>
+</html>  
